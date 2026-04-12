@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bovino {
+  id              String              @id @default(uuid())
+  identificador   String              @unique // Chapeta, nombre o número
+  fechaNacimiento DateTime
+  genero          GeneroBovino
+  raza            String
+  estado          EstadoBovino
+  idMadre         String?
+  idPadre         String?
+  madre           Bovino?             @relation("RelacionMadre", fields: [idMadre], references: [id])
+  hijosMadre      Bovino[]            @relation("RelacionMadre")
+  padre           Bovino?             @relation("RelacionPadre", fields: [idPadre], references: [id])
+  hijosPadre      Bovino[]            @relation("RelacionPadre")
+  produccionLeche ProduccionLeche[]
+  eventosMedicos  EventoVeterinario[]
+  comentarios     String?             @db.Text
+}
+
+enum GeneroBovino {
+  Macho
+  Hembra
+}
+
+enum EstadoBovino {
+  Activo
+  Vendido
+  Fallecido
+}
+
+model ProduccionLeche {
+  id          String      @id @default(uuid())
+  bovinoId    String
+  bovino      Bovino      @relation(fields: [bovinoId], references: [id])
+  fechaOrdeno DateTime
+  turno       TurnoOrdeno
+  litros      Decimal
+  comentarios String?     @db.Text
+}
+
+enum TurnoOrdeno {
+  Manana
+  Tarde
+}
+
+model EventoVeterinario {
+  id                     String                @id @default(uuid())
+  bovinoId               String
+  bovino                 Bovino                @relation(fields: [bovinoId], references: [id])
+  tipo                   TipoEventoVeterinario
+  fechaProgramada        DateTime
+  fechaEjecucion         DateTime?
+  diagnosticoDescripcion String                @db.Text
+  veterinarioACargo      String
+  comentarios            String?               @db.Text
+}
+
+enum TipoEventoVeterinario {
+  Vacunacion
+  Enfermedad
+  Chequeo
+  Parto
+  Nacimiento
+}
+
+model TransaccionFinanciera {
+  id          String          @id @default(uuid())
+  tipo        TipoTransaccion
+  categoria   String
+  monto       Decimal
+  fecha       DateTime
+  descripcion String?         @db.Text
+  comentarios String?         @db.Text
+}
+
+enum TipoTransaccion {
+  Ingreso
+  Gasto
+}
+
+model Tarea {
+  id          String      @id @default(uuid())
+  titulo      String
+  descripcion String      @db.Text
+  fechaLimite DateTime
+  estado      EstadoTarea
+  responsable String
+  comentarios String?     @db.Text
+}
+
+enum EstadoTarea {
+  Pendiente
+  EnProgreso
+  Completada
+}
+
+model Inventario {
+  id                 String                 @id @default(uuid())
+  nombreItem         String                 @unique
+  cantidadDisponible Decimal
+  unidadMedida       String
+  comentarios        String?                @db.Text
+  movimientos        MovimientoInventario[]
+}
+
+model MovimientoInventario {
+  id            String                   @id @default(uuid())
+  inventarioId  String
+  inventario    Inventario               @relation(fields: [inventarioId], references: [id])
+  tipo          TipoMovimientoInventario
+  cantidad      Decimal
+  fecha         DateTime
+  justificacion String                   @db.Text
+  comentarios   String?                  @db.Text
+}
+
+enum TipoMovimientoInventario {
+  Entrada
+  Salida
+  Ajuste
+}
