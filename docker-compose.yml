@@ -9,10 +9,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: fincasanangel
-    ports:
-      - "5432:5432"
+    # Eliminamos el mapeo de puertos hacia el host para mayor seguridad en producción
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fincasanangel_internal
 
   app:
     build:
@@ -20,19 +21,27 @@ services:
       dockerfile: Dockerfile
     container_name: fincasanangel_app
     restart: always
-    ports:
-      - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       # La URL de DB se apunta al servicio "db"
       - DATABASE_URL=postgresql://postgres:mysecretpassword@db:5432/fincasanangel?schema=public
     depends_on:
       - db
-    # Volumen montado para hot-reload
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+    networks:
+      - fincasanangel_internal
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.finca.rule=Host(`finca.soltic.dev`)"
+      - "traefik.http.routers.finca.entrypoints=websecure"
+      - "traefik.http.routers.finca.tls.certresolver=le"
+      - "traefik.http.services.finca.loadbalancer.server.port=3000"
 
 volumes:
   postgres_data:
+
+networks:
+  fincasanangel_internal:
+    driver: bridge
+  web:
+    external: true
