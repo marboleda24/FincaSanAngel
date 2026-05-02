@@ -22,7 +22,10 @@ export default async function MovimientoBodegaForm() {
              <Link href="/inventario/nuevo" className="btn-primary" style={{ display: 'inline-block', marginTop: '1rem' }}>Ir a Catalogar Nuevo Ítem</Link>
            </div>
         ) : (
-          <form action={registrarMovimientoKardex}>
+          <form action={async (formData) => {
+            'use server'
+            await registrarMovimientoKardex(formData)
+          }}>
             
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
               <div className="form-group">

@@ -13,7 +13,10 @@ export default function NuevoItemBodega() {
       </div>
 
       <div className="glass-panel" style={{ padding: '2.5rem' }}>
-        <form action={registrarNuevoItem}>
+        <form action={async (formData) => {
+          'use server'
+          await registrarNuevoItem(formData)
+        }}>
           
           <div className="form-group">
             <label htmlFor="nombreItem">Nombre Comercial del Producto / Insumo *</label>
