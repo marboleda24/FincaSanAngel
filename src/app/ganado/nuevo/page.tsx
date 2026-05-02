@@ -14,7 +14,10 @@ export default function NuevoBovinoForm() {
       </div>
 
       <div className="glass-panel" style={{ padding: '2rem' }}>
-        <form action={registrarBovino}>
+        <form action={async (formData) => {
+          'use server'
+          await registrarBovino(formData)
+        }}>
           
           <div className="form-group">
             <label htmlFor="identificador">Chapeta / Identificador Único *</label>

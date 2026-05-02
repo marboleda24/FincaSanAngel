@@ -17,7 +17,10 @@ export default async function RegistroLoteOrdeno() {
       </div>
 
       <div className="glass-panel" style={{ padding: '2.5rem' }}>
-        <form action={registrarLoteOrdeno}>
+        <form action={async (formData) => {
+          'use server'
+          await registrarLoteOrdeno(formData)
+        }}>
           
           {/* Cabecera del Lote */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border-subtle)' }}>
